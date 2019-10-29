@@ -1,0 +1,23 @@
+{
+  "name": "openzeppelin-ethers",
+  "version": "1.0.0",
+  "description": "Allows you to interact with your OpenZeppelin SDK project using ethers",
+  "main": "index.js",
+  "license": "MIT",
+  "bin": {
+    "oze": "./index.js"
+  },
+  "peerDependencies": {
+    "@openzeppelin/upgrades": "^2.5.3"
+  },
+  "devDependencies": {
+    "@openzeppelin/upgrades": "^2.5.3"
+  },
+  "dependencies": {
+    "async-repl": "^0.4.0",
+    "chalk": "^2.4.2",
+    "commander": "^3.0.2",
+    "ethers": "^4.0.38",
+    "glob": "^7.1.5"
+  }
+}
