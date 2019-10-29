@@ -4,6 +4,7 @@ Provides an Ethers.js console to interact with your contracts.
 
 ## Usage
 
+```
 Usage: oze [options] [command]
 
 Options:
@@ -18,3 +19,4 @@ Commands:
   contracts: Every project contract discovered, including ProxyAdmin
   provider: an ethers provider
   ethers: the ethers lib
+```
