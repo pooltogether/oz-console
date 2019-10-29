@@ -35,10 +35,6 @@ ethers: the ethers lib
     
     const ProxyAdminJson = require('@openzeppelin/upgrades/build/contracts/ProxyAdmin.json')
     
-    global.contracts = {
-      ProxyAdmin: ProxyAdminJson.abi
-    }
-    
     let projectFile = JSON.parse(fs.readFileSync('./.openzeppelin/project.json'))
 
     let ozContractFile
@@ -54,9 +50,18 @@ ethers: the ethers lib
       global.provider = new ethers.getDefaultProvider(program.network)
       ozContractFile = `./.openzeppelin/${program.network}.json`
     }
-
+    
     console.log(chalk.green(`Using ${ozContractFile}...`))
     let ozContracts = JSON.parse(fs.readFileSync(ozContractFile))
+
+    global.contracts = {
+      ProxyAdmin: {
+        abi: ProxyAdminJson.abi,
+        address: ozContracts.proxyAdmin.address
+      }
+    }
+
+    global.ProxyAdmin = new ethers.Contract(contracts.ProxyAdmin.address, contracts.ProxyAdmin.abi, provider)
 
     const artifactsDir = './build/contracts'
     const artifactNames = fs.readdirSync(artifactsDir)
