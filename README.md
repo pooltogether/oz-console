@@ -12,11 +12,12 @@ Options:
   -h, --help               shows this help
 
 Commands:
-  console                  Launches a repl console
+  console                  Launches a node repl
   
-  Includes global variables:
+    Includes global variables:
   
-  contracts: Every project contract discovered, including ProxyAdmin
-  provider: an ethers provider
-  ethers: the ethers lib
+    artifacts: Every project contract discovered, including ProxyAdmin
+    interfaces: An Ethers interface for each artifact discovered
+    provider: an ethers provider
+    ethers: the ethers lib
 ```
