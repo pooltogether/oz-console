@@ -63,7 +63,9 @@ program
       }
     }
 
-    global.interfaces = {}
+    global.interfaces = {
+      ProxyAdmin: new ethers.utils.Interface(global.artifacts.ProxyAdmin.abi)
+    }
 
     global.contracts = {
       ProxyAdmin: new ethers.Contract(global.artifacts.ProxyAdmin.address, global.artifacts.ProxyAdmin.abi, provider)
