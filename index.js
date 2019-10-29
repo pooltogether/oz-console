@@ -10,7 +10,7 @@ const glob = require('glob')
 
 
 program
-  .option('-n, --network <network>', 'selects network.  "localhost" will be interpreted as http://localhost:8545', 'mainnet')
+  .option('-n, --network <network>', 'selects network.  "local" will be interpreted as http://localhost:8545', 'mainnet')
   .helpOption('-h, --help', 'shows this help')
 
 program
@@ -39,7 +39,7 @@ program
     let projectFile = JSON.parse(fs.readFileSync('./.openzeppelin/project.json'))
 
     let ozContractFile
-    if (program.network === 'localhost') {
+    if (program.network === 'local') {
       global.provider = new ethers.providers.JsonRpcProvider('http://localhost:8545')
       const matches = glob.sync('./.openzeppelin/dev-*.json')
       if (matches.length) {
