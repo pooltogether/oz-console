@@ -7,10 +7,9 @@ const fs = require('fs')
 const path = require('path')
 const glob = require('glob')
 
-
-
 program
-  .option('-n, --network <network>', 'selects network.  "local" will be interpreted as http://localhost:8545', 'mainnet')
+  .description(`Provides a convenient console to interact with your deployed OpenZeppelin SDK contracts. Run this command in your project root.`)
+  .option('-n, --network <network>', 'selects network via ethers.getDefaultProvider(network).  "local" will be interpreted as http://localhost:8545', 'mainnet')
   .helpOption('-h, --help', 'shows this help')
 
 program
@@ -22,8 +21,10 @@ program
 
   artifacts: Every project contract discovered, including ProxyAdmin
   interfaces: An Ethers interface for each artifact discovered
+  contracts: An Ethers contract for each *deployed* artifact.  Includes ProxyAdmin.
   provider: an ethers provider
   ethers: the ethers lib
+
 `
   )
   .action(function (env, options) {
@@ -64,7 +65,9 @@ program
 
     global.interfaces = {}
 
-    global.ProxyAdmin = new ethers.Contract(global.artifacts.ProxyAdmin.address, global.artifacts.ProxyAdmin.abi, provider)
+    global.contracts = {
+      ProxyAdmin: new ethers.Contract(global.artifacts.ProxyAdmin.address, global.artifacts.ProxyAdmin.abi, provider)
+    }
 
     const artifactsDir = './build/contracts'
     const artifactNames = fs.readdirSync(artifactsDir)
@@ -81,7 +84,7 @@ program
         const proxies = ozContracts.proxies[proxyName]
         const lastProxy = proxies[proxies.length - 1]
         global.artifacts[artifact.contractName].address = lastProxy.address
-        global[artifact.contractName] = new ethers.Contract(lastProxy.address, artifact.abi, provider)
+        global.contracts[artifact.contractName] = new ethers.Contract(lastProxy.address, artifact.abi, provider)
         global.interfaces[artifact.contractName] = new ethers.utils.Interface(artifact.abi)
       }
     })
@@ -106,5 +109,6 @@ program.parse(process.argv)
 var NO_COMMAND_SPECIFIED = program.args.length === 0;
 
 if (NO_COMMAND_SPECIFIED) {
+  console.warn(chalk.yellow("No command specified.\n"))
   program.help()
 }
