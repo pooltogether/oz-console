@@ -8,10 +8,10 @@
     "oze": "./index.js"
   },
   "peerDependencies": {
-    "@openzeppelin/upgrades": "^2.5.3"
+    "@openzeppelin/upgrades": "^2.5.0"
   },
   "devDependencies": {
-    "@openzeppelin/upgrades": "^2.5.3"
+    "@openzeppelin/upgrades": "^2.5.0"
   },
   "dependencies": {
     "async-repl": "^0.4.0",
