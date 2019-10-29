@@ -41,7 +41,7 @@ program
     let ozContractFile
     if (program.network === 'localhost') {
       global.provider = new ethers.providers.JsonRpcProvider('http://localhost:8545')
-      const matches = glob.sync('./openzeppelin/dev-*.json')
+      const matches = glob.sync('./.openzeppelin/dev-*.json')
       if (matches.length) {
         ozContractFile = matches[matches.length - 1]
       } else {
