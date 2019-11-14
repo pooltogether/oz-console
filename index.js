@@ -121,7 +121,7 @@ artifactNames.map(artifactName => {
 
 const instance = repl.start({
   useGlobal: true,
-  prompt: 'oze> '
+  prompt: 'oz-console> '
 })    
 
 stubber(instance);
