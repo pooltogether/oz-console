@@ -1,6 +1,14 @@
-# OpenZeppelin Ethers
+# OpenZeppelin Ethers Console
 
 Provides an Ethers.js based console to interact with your contracts.
+
+Fairly simple at the moment; does not use the OpenZeppelin SDK network configuration (yet!).
+
+## Installation
+
+```
+npm install oz-console
+```
 
 ## Usage
 

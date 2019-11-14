@@ -4,6 +4,8 @@
   "description": "Provides an Ethers.js based console to interact with your OpenZeppelin SDK project.",
   "main": "index.js",
   "license": "MIT",
+  "repository": "git@github.com:pooltogether/oz-console.git",
+  "author": "Brendan Asselstine brendan@pooltogether.us",
   "bin": {
     "oz-console": "./index.js"
   },
