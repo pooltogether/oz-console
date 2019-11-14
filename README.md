@@ -5,7 +5,7 @@ Provides an Ethers.js based console to interact with your contracts.
 ## Usage
 
 ```
-Usage: ozconsole [options]
+Usage: oz-console [options]
 
 Provides an Ethers.js based console to interact with your OpenZeppelin SDK project.  Supports await syntax.  Includes global variables:
   
