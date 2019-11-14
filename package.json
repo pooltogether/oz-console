@@ -1,11 +1,11 @@
 {
-  "name": "openzeppelin-ethers",
+  "name": "oz-console",
   "version": "1.0.0",
-  "description": "Allows you to interact with your OpenZeppelin SDK project using ethers",
+  "description": "Provides an Ethers.js based console to interact with your OpenZeppelin SDK project.",
   "main": "index.js",
   "license": "MIT",
   "bin": {
-    "oze": "./index.js"
+    "oz-console": "./index.js"
   },
   "peerDependencies": {
     "@openzeppelin/upgrades": "^2.5.0"
