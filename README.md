@@ -29,5 +29,6 @@ Options:
   -p, --projectConfig <oz project config path>    sets the project config path (default: "./.openzeppelin/project.json")
   -d, --directory <compiled artifacts directory>  sets the directory containing the compiled artifacts. (default: "./build/contracts")
   -v, --verbose                                   enable verbose logging.  useful for diagnosing errors
+  -e, --exec <js file path>                       executes a javascript file instead of running a REPL
   -h, --help                                      shows this help
 ```
