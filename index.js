@@ -2,10 +2,12 @@
 const program = require('commander')
 const chalk = require('chalk')
 const repl = require('repl')
-const stubber = require('async-repl/stubber');
+const stubber = require('async-repl/stubber')
 const fs = require('fs')
 const path = require('path')
 const glob = require('glob')
+const vm = require('vm');
+const createRequire = require('./createRequire')
 
 program
   .description(`\
@@ -21,6 +23,7 @@ Provides an Ethers.js based console to interact with your OpenZeppelin SDK proje
   .option('-p, --projectConfig <oz project config path>', 'sets the project config path', './.openzeppelin/project.json')
   .option('-d, --directory <compiled artifacts directory>', 'sets the directory containing the compiled artifacts.', './build/contracts')
   .option('-v, --verbose', 'enable verbose logging.  useful for diagnosing errors', () => true)
+  .option('-e, --exec <js file path>', 'executes a javascript file instead of running a REPL')
   .helpOption('-h, --help', 'shows this help')
 
 program.parse(process.argv)
@@ -43,7 +46,6 @@ try {
   program.help()
   process.exit(1)
 }
-
 
 let knownNetwork = ethers.utils.getNetwork(program.network);
 if (!knownNetwork) {
@@ -119,9 +121,38 @@ artifactNames.map(artifactName => {
   }
 })
 
-const instance = repl.start({
-  useGlobal: true,
-  prompt: 'oz-console> '
-})    
+if (program.exec) {
+  
+  const Module = require("module");
+  const file = path.join('.', program.exec)
+  const data = fs.readFileSync(file);
 
-stubber(instance);
+  const normalizedFile = path.resolve(program.exec)
+  const dir = path.dirname(normalizedFile)
+
+  const context = vm.createContext({
+    Buffer: Buffer,
+    __dirname: path.dirname(file),
+    __filename: file,
+    clearImmediate: clearImmediate,
+    clearInterval: clearInterval,
+    clearTimeout: clearTimeout,
+    console: console,
+    exports: exports,
+    ...global,
+    module: new Module(file),
+    process: process,
+    require: createRequire(dir)
+  })
+  const script = vm.createScript(data, file);
+  script.runInNewContext(context);
+
+} else {
+
+  const instance = repl.start({
+    useGlobal: true,
+    prompt: 'oz-console> '
+  })    
+  
+  stubber(instance);
+}

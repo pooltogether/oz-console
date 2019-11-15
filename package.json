@@ -20,6 +20,7 @@
     "chalk": "^2.4.2",
     "commander": "^3.0.2",
     "ethers": "^4.0.38",
-    "glob": "^7.1.5"
+    "glob": "^7.1.5",
+    "original-require": "^1.0.1"
   }
 }
