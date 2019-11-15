@@ -37,10 +37,9 @@ global.ethers = require('ethers')
 const ProxyAdminJson = require('@openzeppelin/upgrades/build/contracts/ProxyAdmin.json')
 
 if (program.verbose) console.log(chalk.green(`Using project file ${program.projectConfig}`))
-let projectFile
 
 try {
-  projectFile = JSON.parse(fs.readFileSync(program.projectConfig))
+  global.projectConfig = JSON.parse(fs.readFileSync(program.projectConfig))
 } catch (e) {
   console.error(chalk.red(`Could not load project file: ${program.projectConfig}`))
   program.help()
@@ -71,9 +70,8 @@ if (program.networkConfig) {
 }
 
 if (program.verbose) console.log(chalk.green(`Using network config ${ozContractFile}...`))
-let ozContracts
 try {
-  ozContracts = JSON.parse(fs.readFileSync(ozContractFile))
+  global.networkConfig = JSON.parse(fs.readFileSync(ozContractFile))
 } catch (e) {
   console.error(chalk.red(`Could not load network config file: ${ozContractFile}`))
   program.help()
@@ -83,7 +81,7 @@ try {
 global.artifacts = {
   ProxyAdmin: {
     abi: ProxyAdminJson.abi,
-    address: ozContracts.proxyAdmin.address
+    address: global.networkConfig.proxyAdmin.address
   }
 }
 
@@ -107,10 +105,10 @@ artifactNames.map(artifactName => {
       bytecode: artifact.bytecode
     }
 
-    const proxyName = `${projectFile.name}/${artifact.contractName}`
+    const proxyName = `${global.projectConfig.name}/${artifact.contractName}`
 
-    if (ozContracts.proxies[proxyName]) {
-      const proxies = ozContracts.proxies[proxyName]
+    if (global.networkConfig.proxies[proxyName]) {
+      const proxies = global.networkConfig.proxies[proxyName]
       const lastProxy = proxies[proxies.length - 1]
       global.artifacts[artifact.contractName].address = lastProxy.address
       global.contracts[artifact.contractName] = new ethers.Contract(lastProxy.address, artifact.abi, provider)
