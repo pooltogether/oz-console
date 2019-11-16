@@ -36,15 +36,18 @@ global.ethers = require('ethers')
 
 const ProxyAdminJson = require('@openzeppelin/upgrades/build/contracts/ProxyAdmin.json')
 
-if (program.verbose) console.log(chalk.green(`Using project file ${program.projectConfig}`))
-
-try {
-  global.projectConfig = JSON.parse(fs.readFileSync(program.projectConfig))
-} catch (e) {
-  console.error(chalk.red(`Could not load project file: ${program.projectConfig}`))
-  program.help()
-  process.exit(1)
+function loadProjectConfig() {
+  if (program.verbose) console.log(chalk.green(`Using project file ${program.projectConfig}`))
+  try {
+    return JSON.parse(fs.readFileSync(program.projectConfig))
+  } catch (e) {
+    console.error(chalk.red(`Could not load project file: ${program.projectConfig}`))
+    program.help()
+    process.exit(1)
+  }
 }
+
+global.projectConfig = loadProjectConfig()
 
 let knownNetwork = ethers.utils.getNetwork(program.network);
 if (!knownNetwork) {
@@ -53,30 +56,35 @@ if (!knownNetwork) {
   global.provider = new ethers.getDefaultProvider(program.network)
 }
 
-let ozContractFile
-if (program.networkConfig) {
-  ozContractFile = program.networkConfig
-} else if (!knownNetwork) {
-  const matches = glob.sync('./.openzeppelin/dev-*.json')
-  if (matches.length) {
-    ozContractFile = matches[matches.length - 1]
+function loadNetworkConfig() {
+  let networkConfigPath
+  if (program.networkConfig) {
+    networkConfigPath = program.networkConfig
+  } else if (!knownNetwork) {
+    const matches = glob.sync('./.openzeppelin/dev-*.json')
+    if (matches.length) {
+      networkConfigPath = matches[matches.length - 1]
+    } else {
+      console.error(chalk.red('Cannot find dev-* network config file for custom network'))
+      program.help()
+      process.exit(1)
+    }
   } else {
-    console.error(chalk.red('Cannot find dev-* network config file for custom network'))
+    networkConfigPath = `./.openzeppelin/${program.network}.json`
+  }
+
+  if (program.verbose) console.log(chalk.green(`Using network config ${networkConfigPath}...`))
+  try {
+    return JSON.parse(fs.readFileSync(networkConfigPath))
+  } catch (e) {
+    console.error(chalk.red(`Could not load network config file: ${networkConfigPath}`))
     program.help()
     process.exit(1)
   }
-} else {
-  ozContractFile = `./.openzeppelin/${program.network}.json`
 }
 
-if (program.verbose) console.log(chalk.green(`Using network config ${ozContractFile}...`))
-try {
-  global.networkConfig = JSON.parse(fs.readFileSync(ozContractFile))
-} catch (e) {
-  console.error(chalk.red(`Could not load network config file: ${ozContractFile}`))
-  program.help()
-  process.exit(1)
-}
+global.networkConfig = loadNetworkConfig()
+global.loadNetworkConfig = loadNetworkConfig
 
 global.artifacts = {
   ProxyAdmin: {
@@ -104,19 +112,28 @@ artifactNames.map(artifactName => {
       abi: artifact.abi,
       bytecode: artifact.bytecode
     }
+    global.interfaces[artifact.contractName] = new ethers.utils.Interface(artifact.abi)
 
-    const proxyName = `${global.projectConfig.name}/${artifact.contractName}`
+    // const proxyName = `${global.projectConfig.name}/${artifact.contractName}`
 
-    if (global.networkConfig.proxies[proxyName]) {
-      const proxies = global.networkConfig.proxies[proxyName]
-      const lastProxy = proxies[proxies.length - 1]
-      global.artifacts[artifact.contractName].address = lastProxy.address
-      global.contracts[artifact.contractName] = new ethers.Contract(lastProxy.address, artifact.abi, provider)
-      global.interfaces[artifact.contractName] = new ethers.utils.Interface(artifact.abi)
-    }
+    // if (global.networkConfig.proxies[proxyName]) {
+    //   const proxies = global.networkConfig.proxies[proxyName]
+    //   const lastProxy = proxies[proxies.length - 1]
+    //   global.contracts[artifact.contractName] = new ethers.Contract(lastProxy.address, artifact.abi, provider)
+    // }
   } catch (e) {
     console.warn(chalk.red(`Could not load ${artifactPath}: ${e.message}`), e)
   }
+})
+
+Object.keys(projectConfig.contracts).forEach(proxyName => {
+  const contractName = projectConfig.contracts[proxyName]
+  if (program.verbose) console.log(chalk.green(`Setting up proxy ${proxyName} for contract ${contractName}`))
+  const artifact = artifacts[contractName]
+  const proxyPath = `${global.projectConfig.name}/${proxyName}`
+  const proxies = global.networkConfig.proxies[proxyPath]
+  const lastProxy = proxies[proxies.length - 1]
+  global.contracts[proxyName] = new ethers.Contract(lastProxy.address, artifact.abi, provider)
 })
 
 if (program.exec) {
