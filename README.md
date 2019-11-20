@@ -12,6 +12,10 @@ npm install oz-console
 
 ## Usage
 
+`oz-console` can be used from the command line or programmatically.
+
+### CLI
+
 ```
 Usage: oz-console [options]
 
@@ -31,4 +35,27 @@ Options:
   -v, --verbose                                   enable verbose logging.  useful for diagnosing errors
   -e, --exec <js file path>                       executes a javascript file instead of running a REPL
   -h, --help                                      shows this help
+```
+
+### JS
+
+Use the Ethers.js setup programmatically
+
+```javascript
+const { buildContext } = require('oz-console')
+
+const context = buildContext({
+  projectConfig,
+  network,
+  networkConfig,
+  directory,
+  verbose
+})
+
+context.artifacts
+context.interfaces
+context.contracts
+context.provider
+context.ethers
+// etc
 ```
