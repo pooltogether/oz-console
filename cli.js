@@ -68,7 +68,11 @@ if (program.exec) {
   const instance = repl.start({
     useGlobal: true,
     prompt: 'oz-console> '
-  })    
+  })
+  
+  Object.keys(context).forEach(key => {
+    global[key] = context[key]
+  })
   
   stubber(instance);
 }
