@@ -7,7 +7,7 @@
   "repository": "git@github.com:pooltogether/oz-console.git",
   "author": "Brendan Asselstine brendan@pooltogether.us",
   "bin": {
-    "oz-console": "./index.js"
+    "oz-console": "./cli.js"
   },
   "peerDependencies": {
     "@openzeppelin/upgrades": "^2.5.0"
