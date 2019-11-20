@@ -1,3 +1,9 @@
+const chalk = require('chalk')
+const fs = require('fs')
+const path = require('path')
+const ethers = require('ethers')
+const glob = require('glob')
+
 module.exports = function buildContext({
   projectConfig,
   network,
@@ -11,7 +17,7 @@ module.exports = function buildContext({
     promise.then(console.log).catch(console.error)
   }
   
-  context.ethers = require('ethers')
+  context.ethers = ethers
   
   const ProxyAdminJson = require('@openzeppelin/upgrades/build/contracts/ProxyAdmin.json')
   
@@ -20,7 +26,7 @@ module.exports = function buildContext({
     try {
       return JSON.parse(fs.readFileSync(projectConfig))
     } catch (e) {
-      throw new Error(`Could not load project file: ${projectConfig}`)
+      throw new Error(`Could not load project file: ${projectConfig}: ${e.message}`)
     }
   }
   
@@ -71,7 +77,7 @@ module.exports = function buildContext({
   }
   
   context.contracts = {
-    ProxyAdmin: new ethers.Contract(context.artifacts.ProxyAdmin.address, context.artifacts.ProxyAdmin.abi, provider)
+    ProxyAdmin: new ethers.Contract(context.artifacts.ProxyAdmin.address, context.artifacts.ProxyAdmin.abi, context.provider)
   }
   
   const artifactsDir = directory
@@ -91,14 +97,14 @@ module.exports = function buildContext({
     }
   })
   
-  Object.keys(projectConfig.contracts).forEach(proxyName => {
-    const contractName = projectConfig.contracts[proxyName]
+  Object.keys(context.projectConfig.contracts).forEach(proxyName => {
+    const contractName = context.projectConfig.contracts[proxyName]
     if (verbose) console.log(chalk.green(`Setting up proxy ${proxyName} for contract ${contractName}`))
-    const artifact = artifacts[contractName]
+    const artifact = context.artifacts[contractName]
     const proxyPath = `${context.projectConfig.name}/${proxyName}`
     const proxies = context.networkConfig.proxies[proxyPath]
     const lastProxy = proxies[proxies.length - 1]
-    context.contracts[proxyName] = new ethers.Contract(lastProxy.address, artifact.abi, provider)
+    context.contracts[proxyName] = new ethers.Contract(lastProxy.address, artifact.abi, context.provider)
   })
   
   return context
