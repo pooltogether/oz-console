@@ -9,7 +9,8 @@ module.exports = function buildContext({
   network,
   networkConfig,
   directory,
-  verbose
+  verbose,
+  mnemonic
 }) {
   const context = {}
 
@@ -37,6 +38,10 @@ module.exports = function buildContext({
     context.provider = new ethers.providers.JsonRpcProvider(network)
   } else {
     context.provider = new ethers.getDefaultProvider(network)
+  }
+
+  if (mnemonic) {
+    context.signer = (new ethers.Wallet.fromMnemonic(mnemonic)).connect(context.provider)
   }
   
   function loadNetworkConfig() {
@@ -77,7 +82,7 @@ module.exports = function buildContext({
   }
   
   context.contracts = {
-    ProxyAdmin: new ethers.Contract(context.artifacts.ProxyAdmin.address, context.artifacts.ProxyAdmin.abi, context.provider)
+    ProxyAdmin: new ethers.Contract(context.artifacts.ProxyAdmin.address, context.artifacts.ProxyAdmin.abi, context.signer || context.provider)
   }
   
   const artifactsDir = directory
@@ -104,7 +109,7 @@ module.exports = function buildContext({
     const proxyPath = `${context.projectConfig.name}/${proxyName}`
     const proxies = context.networkConfig.proxies[proxyPath]
     const lastProxy = proxies[proxies.length - 1]
-    context.contracts[proxyName] = new ethers.Contract(lastProxy.address, artifact.abi, context.provider)
+    context.contracts[proxyName] = new ethers.Contract(lastProxy.address, artifact.abi, context.signer || context.provider)
   })
   
   return context

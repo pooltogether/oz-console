@@ -24,6 +24,7 @@ Provides an Ethers.js based console to interact with your OpenZeppelin SDK proje
   .option('-d, --directory <compiled artifacts directory>', 'sets the directory containing the compiled artifacts.', './build/contracts')
   .option('-v, --verbose', 'enable verbose logging.  useful for diagnosing errors', () => true)
   .option('-e, --exec <js file path>', 'executes a javascript file instead of running a REPL')
+  .option('-m, --mnemonic <hd_wallet_mnemonic>', 'use the mnemonic as the signatory')
   .helpOption('-h, --help', 'shows this help')
 
 program.parse(process.argv)
