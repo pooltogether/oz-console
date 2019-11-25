@@ -41,7 +41,11 @@ module.exports = function buildContext({
   }
 
   if (mnemonic) {
-    context.signer = (new ethers.Wallet.fromMnemonic(mnemonic)).connect(context.provider)
+    context.walletAtIndex = function (index = 0) {
+      let path = `m/44'/60'/${index}'/0/0`
+      return (new ethers.Wallet.fromMnemonic(mnemonic, path)).connect(context.provider)
+    }
+    context.signer = context.walletAtIndex(0)
   }
   
   function loadNetworkConfig() {
