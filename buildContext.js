@@ -64,10 +64,14 @@ module.exports = function buildContext({
     }
   
     if (verbose) console.log(chalk.green(`Using network config ${networkConfigPath}...`))
-    try {
-      return JSON.parse(fs.readFileSync(networkConfigPath))
-    } catch (e) {
-      throw new Error(`Could not load network config file: ${networkConfigPath}`)
+    if (fs.existsSync(networkConfigPath)) {
+      try {
+        return JSON.parse(fs.readFileSync(networkConfigPath))
+      } catch (e) {
+        throw new Error(`Could not load network config file: ${networkConfigPath}`)
+      }
+    } else if (verbose) {
+      console.log(chalk.yellow(`Network config ${networkConfigPath} not found.  Some context will not be available.`))
     }
   }
   
@@ -84,7 +88,7 @@ module.exports = function buildContext({
     ProxyAdmin: new ethers.utils.Interface(context.artifacts.ProxyAdmin.abi)
   }
 
-  if (context.networkConfig.proxyAdmin) {
+  if (context.networkConfig && context.networkConfig.proxyAdmin) {
     context.contracts = {
       ProxyAdmin: new ethers.Contract(context.networkConfig.proxyAdmin.address, context.artifacts.ProxyAdmin.abi, context.signer || context.provider)
     }
@@ -112,8 +116,8 @@ module.exports = function buildContext({
     if (verbose) console.log(chalk.green(`Setting up proxy ${proxyName} for contract ${contractName}`))
     const artifact = context.artifacts[contractName]
     const proxyPath = `${context.projectConfig.name}/${proxyName}`
-    const proxies = context.networkConfig.proxies[proxyPath]
-    if (proxies) {
+    const proxies = context.networkConfig ? context.networkConfig.proxies[proxyPath] : []
+    if (proxies && proxies.length) {
       const lastProxy = proxies[proxies.length - 1]
       context.contracts[proxyName] = new ethers.Contract(lastProxy.address, artifact.abi, context.signer || context.provider)
     }
