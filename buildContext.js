@@ -76,17 +76,18 @@ module.exports = function buildContext({
   
   context.artifacts = {
     ProxyAdmin: {
-      abi: ProxyAdminJson.abi,
-      address: context.networkConfig.proxyAdmin.address
+      abi: ProxyAdminJson.abi
     }
   }
   
   context.interfaces = {
     ProxyAdmin: new ethers.utils.Interface(context.artifacts.ProxyAdmin.abi)
   }
-  
-  context.contracts = {
-    ProxyAdmin: new ethers.Contract(context.artifacts.ProxyAdmin.address, context.artifacts.ProxyAdmin.abi, context.signer || context.provider)
+
+  if (context.networkConfig.proxyAdmin) {
+    context.contracts = {
+      ProxyAdmin: new ethers.Contract(context.networkConfig.proxyAdmin.address, context.artifacts.ProxyAdmin.abi, context.signer || context.provider)
+    }
   }
   
   const artifactsDir = directory
@@ -112,10 +113,12 @@ module.exports = function buildContext({
     const artifact = context.artifacts[contractName]
     const proxyPath = `${context.projectConfig.name}/${proxyName}`
     const proxies = context.networkConfig.proxies[proxyPath]
-    const lastProxy = proxies[proxies.length - 1]
-    context.contracts[proxyName] = new ethers.Contract(lastProxy.address, artifact.abi, context.signer || context.provider)
+    if (proxies) {
+      const lastProxy = proxies[proxies.length - 1]
+      context.contracts[proxyName] = new ethers.Contract(lastProxy.address, artifact.abi, context.signer || context.provider)
+    }
   })
-  
+
   return context
 }
 

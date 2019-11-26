@@ -56,6 +56,7 @@ if (program.exec) {
     clearTimeout: clearTimeout,
     console: console,
     exports: exports,
+    reloadContext: () => buildContext(program),
     ...context,
     module: new Module(file),
     process: process,
