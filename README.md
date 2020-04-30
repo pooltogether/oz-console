@@ -28,13 +28,13 @@ Provides an Ethers.js based console to interact with your OpenZeppelin SDK proje
   ethers: the ethers lib
 
 Options:
-  -n, --network <network name or JSON RPC URL>    selects network via ethers.getDefaultProvider(network) or uses the network as a JSON RPC URLs such as http://localhost:8545 (default: "mainnet")
-  -c, --networkConfig <oz network config path>    set the network config path.  Defaults to the config corresponding to the network.
-  -p, --projectConfig <oz project config path>    sets the project config path (default: "./.openzeppelin/project.json")
-  -d, --directory <compiled artifacts directory>  sets the directory containing the compiled artifacts. (default: "./build/contracts")
-  -v, --verbose                                   enable verbose logging.  useful for diagnosing errors
-  -e, --exec <js file path>                       executes a javascript file instead of running a REPL
-  -h, --help                                      shows this help
+  -n, --network <network name>                  selects the openzeppelin network to use (default: "mainnet")
+  -p, --projectConfig <oz project config path>  sets the project config path (default: ".openzeppelin/project.json")
+  -v, --verbose                                 enable verbose logging.  useful for diagnosing errors
+  -e, --exec <js file path>                     executes a javascript file instead of running a REPL
+  -a, --address <from address>                  use the address as the signer
+  -h, --help                                    shows this help
+
 ```
 
 ### JS
@@ -45,17 +45,25 @@ Use the Ethers.js setup programmatically
 const { buildContext } = require('oz-console')
 
 const context = buildContext({
-  projectConfig,
-  network,
-  networkConfig,
-  directory,
-  verbose
+  network: 'mainnet'
 })
 
-context.artifacts
-context.interfaces
-context.contracts
-context.provider
+// Ethers
 context.ethers
-// etc
+// OpenZeppelin CLI ProjectFile object
+context.projectFile
+// Artifact JSON blobs
+context.artifacts
+// Ethers Interfaces for each artifact
+context.interfaces
+// Ethers Contract for each deployed contract
+context.contracts
+// Ethers provider
+context.provider
+// Ethers signer for the OZ 'from' address
+context.signer
+// OpenZeppelin CLI NetworkFile object
+context.networkFile
+// OpenZeppelin CLi NetworkConfig object
+context.networkConfig
 ```

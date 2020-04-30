@@ -1,6 +1,6 @@
 {
   "name": "oz-console",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Provides an Ethers.js based console to interact with your OpenZeppelin SDK project.",
   "main": "index.js",
   "license": "MIT",
@@ -21,7 +21,7 @@
     "async-repl": "^0.4.0",
     "chalk": "^2.4.2",
     "commander": "^3.0.2",
-    "ethers": "^4.0.38",
+    "ethers": "^4.0.47",
     "glob": "^7.1.5",
     "original-require": "^1.0.1"
   }

@@ -22,7 +22,7 @@ Provides an Ethers.js based console to interact with your OpenZeppelin SDK proje
   .option('-p, --projectConfig <oz project config path>', 'sets the project config path', '.openzeppelin/project.json')
   .option('-v, --verbose', 'enable verbose logging.  useful for diagnosing errors', () => true)
   .option('-e, --exec <js file path>', 'executes a javascript file instead of running a REPL')
-  .option('-m, --mnemonic <hd_wallet_mnemonic>', 'use the mnemonic as the signatory')
+  .option('-a, --address <from address>', 'use the address as the signer')
   .helpOption('-h, --help', 'shows this help')
 
 program.parse(process.argv)
