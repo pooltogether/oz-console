@@ -1,6 +1,6 @@
 {
   "name": "oz-console",
-  "version": "1.1.3",
+  "version": "2.0.0",
   "description": "Provides an Ethers.js based console to interact with your OpenZeppelin SDK project.",
   "main": "index.js",
   "license": "MIT",
@@ -10,10 +10,12 @@
     "oz-console": "./cli.js"
   },
   "peerDependencies": {
-    "@openzeppelin/upgrades": "^2.5.0"
+    "@openzeppelin/cli": "^2.8.2",
+    "@openzeppelin/upgrades": "^2.8.0"
   },
   "devDependencies": {
-    "@openzeppelin/upgrades": "^2.5.0"
+    "@openzeppelin/cli": "^2.8.2",
+    "@openzeppelin/upgrades": "^2.8.0"
   },
   "dependencies": {
     "async-repl": "^0.4.0",

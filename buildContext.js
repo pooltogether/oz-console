@@ -4,12 +4,15 @@ const path = require('path')
 const ethers = require('ethers')
 const glob = require('glob')
 
-module.exports = function buildContext({
+const ProjectFile = require('@openzeppelin/cli/lib/models/files/ProjectFile').default
+const NetworkFile = require('@openzeppelin/cli/lib/models/files/NetworkFile').default
+const ConfigManager = require("@openzeppelin/cli/lib/models/config/ConfigManager").default
+
+module.exports = async function buildContext({
   projectConfig,
   network,
-  networkConfig,
-  directory,
   verbose,
+  address,
   mnemonic
 }) {
   const context = {}
@@ -22,60 +25,30 @@ module.exports = function buildContext({
   
   const ProxyAdminJson = require('@openzeppelin/upgrades/build/contracts/ProxyAdmin.json')
   
-  function loadProjectConfig() {
-    if (verbose) console.log(chalk.green(`Using project file ${projectConfig}`))
-    try {
-      return JSON.parse(fs.readFileSync(projectConfig))
-    } catch (e) {
-      throw new Error(`Could not load project file: ${projectConfig}: ${e.message}`)
-    }
-  }
-  
-  context.projectConfig = loadProjectConfig()
-  
-  let knownNetwork = ethers.utils.getNetwork(network);
-  if (!knownNetwork) {
-    context.provider = new ethers.providers.JsonRpcProvider(network)
+  const projectFile = new ProjectFile(projectConfig)
+  context.projectFile = projectFile
+
+  const networkConfig = await ConfigManager.initNetworkConfiguration({
+    network
+  });
+
+  const { provider } = await ConfigManager.config.loadNetworkConfig(network)
+
+  if (typeof provider === 'string') {
+    context.provider = new ethers.providers.JsonRpcProvider(provider)
   } else {
-    context.provider = new ethers.getDefaultProvider(network)
+    context.provider = new ethers.providers.Web3Provider(provider)
   }
 
-  if (mnemonic) {
-    context.walletAtIndex = function (index = 0) {
-      let path = `m/44'/60'/0'/0/${index}`
-      return (new ethers.Wallet.fromMnemonic(mnemonic, path)).connect(context.provider)
-    }
-    context.signer = context.walletAtIndex(0)
-  }
-  
+  context.signer = context.provider.getSigner(address || networkConfig.txParams.from)
+
   function loadNetworkConfig() {
-    let networkConfigPath
-    if (networkConfig) {
-      networkConfigPath = networkConfig
-    } else if (!knownNetwork) {
-      const matches = glob.sync('./.openzeppelin/dev-*.json')
-      if (matches.length) {
-        networkConfigPath = matches[matches.length - 1]
-      } else {
-        throw new Error('Cannot find dev-* network config file for custom network')
-      }
-    } else {
-      networkConfigPath = `./.openzeppelin/${network}.json`
-    }
-  
-    if (verbose) console.log(chalk.green(`Using network config ${networkConfigPath}...`))
-    if (fs.existsSync(networkConfigPath)) {
-      try {
-        return JSON.parse(fs.readFileSync(networkConfigPath))
-      } catch (e) {
-        throw new Error(`Could not load network config file: ${networkConfigPath}`)
-      }
-    } else if (verbose) {
-      console.log(chalk.yellow(`Network config ${networkConfigPath} not found.  Some context will not be available.`))
-    }
+    let networkFile = new NetworkFile(projectFile, networkConfig.network)
+    if (verbose) console.log(chalk.green(`Using network config ${networkFile.filePath}...`))
+    return networkFile
   }
   
-  context.networkConfig = loadNetworkConfig()
+  context.networkFile = loadNetworkConfig()
   context.loadNetworkConfig = loadNetworkConfig
   
   context.artifacts = {
@@ -88,13 +61,15 @@ module.exports = function buildContext({
     ProxyAdmin: new ethers.utils.Interface(context.artifacts.ProxyAdmin.abi)
   }
 
-  if (context.networkConfig && context.networkConfig.proxyAdmin) {
+  if (context.networkFile && context.networkFile.proxyAdmin) {
     context.contracts = {
-      ProxyAdmin: new ethers.Contract(context.networkConfig.proxyAdmin.address, context.artifacts.ProxyAdmin.abi, context.signer || context.provider)
+      ProxyAdmin: new ethers.Contract(context.networkFile.proxyAdmin.address, context.artifacts.ProxyAdmin.abi, context.signer || context.provider)
     }
   }
   
-  const artifactsDir = directory
+  const compilerOptions = projectFile.compilerOptions
+
+  const artifactsDir = compilerOptions.outputDir
   const artifactNames = fs.readdirSync(artifactsDir)
   artifactNames.map(artifactName => {
     const artifactPath = path.join(artifactsDir, artifactName)
@@ -111,19 +86,15 @@ module.exports = function buildContext({
     }
   })
   
-  Object.keys(context.projectConfig.contracts).forEach(proxyName => {
-    const contractName = context.projectConfig.contracts[proxyName]
-    if (verbose) console.log(chalk.green(`Setting up proxy ${proxyName} for contract ${contractName}`))
+  Object.keys(context.projectFile.contracts).forEach(contractName => {
+    if (verbose) console.log(chalk.green(`Setting up proxy for contract ${contractName}`))
     const artifact = context.artifacts[contractName]
-    const proxyPath = `${context.projectConfig.name}/${proxyName}`
-    const proxies = context.networkConfig ? context.networkConfig.proxies[proxyPath] : []
-    if (proxies && proxies.length) {
-      const lastProxy = proxies[proxies.length - 1]
-      context.contracts[proxyName] = new ethers.Contract(lastProxy.address, artifact.abi, context.signer || context.provider)
+    const proxies = context.networkFile.getProxies({ contractName })
+    const proxy = proxies.length ? proxies[proxies.length - 1] : null
+    if (proxy) {
+      context.contracts[contractName] = new ethers.Contract(proxy.address, artifact.abi, context.signer || context.provider)
     }
   })
 
   return context
 }
-
-
