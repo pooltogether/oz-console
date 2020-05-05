@@ -2,12 +2,10 @@
 
 Provides an Ethers.js based console to interact with your contracts.
 
-Fairly simple at the moment; does not use the OpenZeppelin SDK network configuration (yet!).
-
 ## Installation
 
-```
-npm install oz-console
+```bash
+$ yarn add oz-console
 ```
 
 ## Usage
@@ -23,12 +21,12 @@ Let's interact with the contract:
 $ oz-console -n mainnet
 ```
 
-Now, inside of the console:
+Now we're in `oz-console`:
 
 ```javascript
 // contracts contains Ethers.js Contract instance of all deployed contracts
 mainnet> await contracts.MyToken.totalSupply()
-// await here is redundant, but demonstrates that 
+// await here is redundant, but demonstrates that the syntax is supported
 ```
 
 Or get the ether balance:
@@ -58,6 +56,7 @@ Provides an Ethers.js based console to interact with your OpenZeppelin SDK proje
   interfaces: An Ethers interface for each artifact discovered
   contracts: An Ethers contract for each *deployed* artifact.  Includes ProxyAdmin.
   provider: an ethers provider
+  signer: a signer for the configured OZ 'from' address
   ethers: the ethers lib
 
 Options:
@@ -72,7 +71,7 @@ Options:
 
 ## Programmatic Usage
 
-Use the Ethers.js setup programmatically
+Use `buildContext` to setup the environment programmatically
 
 ```javascript
 const { buildContext } = require('oz-console')
