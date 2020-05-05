@@ -14,7 +14,40 @@ npm install oz-console
 
 `oz-console` can be used from the command line or programmatically.
 
-### CLI
+For example: let's assume you have an ERC20 called MyToken that is deployed to mainnet.
+
+Let's interact with the contract:
+
+```bash
+# Contracts should be deployed and compiled
+$ oz-console -n mainnet
+```
+
+Now, inside of the console:
+
+```javascript
+// contracts contains Ethers.js Contract instance of all deployed contracts
+mainnet> await contracts.MyToken.totalSupply()
+// await here is redundant, but demonstrates that 
+```
+
+Or get the ether balance:
+
+```javascript
+// provider and contracts are available in the environment
+mainnet> provider.getBalance(contracts.MyToken.address)
+```
+
+Create contracts on-the-fly:
+
+```javascript
+// ethers, signers, and artifacts are available in the enviroment
+mainnet> let MyToken2 = new ethers.Contract('0x1234...', artifacts.MyToken.abi, signer)
+```
+
+For a complete reference of what variables are available in the global context see below.
+
+### CLI Help
 
 ```
 Usage: oz-console [options]
@@ -37,7 +70,7 @@ Options:
 
 ```
 
-### JS
+## Programmatic Usage
 
 Use the Ethers.js setup programmatically
 
